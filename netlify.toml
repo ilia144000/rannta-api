@@ -23,3 +23,16 @@
   to = "/.netlify/functions/verify"
   status = 200
   force = true
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["ids.json"]
+
+[[redirects]]
+  from = "/verify"
+  to = "/.netlify/functions/verify"
+  status = 200
+  force = true
