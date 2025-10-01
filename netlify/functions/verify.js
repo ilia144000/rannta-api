@@ -9,6 +9,20 @@ const CORS = {
   Vary: "Origin"
 };
 
+function findIdsJson() {
+  // Try a few safe candidate paths depending on bundling/runtime
+  const candidates = [
+    path.join(__dirname, "ids.json"),
+    path.resolve(process.cwd(), "ids.json"),
+    path.resolve(path.dirname(__dirname), "ids.json"),
+    path.resolve("/", "var", "task", "ids.json") // some AWS runtimes
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
+}
+
 exports.handler = async (event) => {
   try {
     if (event.httpMethod === "OPTIONS") {
@@ -23,7 +37,11 @@ exports.handler = async (event) => {
       return { statusCode: 400, headers: CORS, body: JSON.stringify({ ok: false, error: "missing id" }) };
     }
 
-    const idsPath = path.resolve(process.cwd(), "ids.json");
+    const idsPath = findIdsJson();
+    if (!idsPath) {
+      return { statusCode: 500, headers: CORS, body: JSON.stringify({ ok: false, error: "ids.json not found" }) };
+    }
+
     const raw = fs.readFileSync(idsPath, "utf8");
     const data = JSON.parse(raw);
 
@@ -37,6 +55,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({ ok, id, ...meta })
     };
   } catch (err) {
+    // Do not leak internals; return generic error
     return { statusCode: 500, headers: CORS, body: JSON.stringify({ ok: false, error: "internal error" }) };
   }
 };
