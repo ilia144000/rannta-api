@@ -2,7 +2,11 @@
   publish = "."
   functions = "netlify/functions"
 
-# Pretty URLs for root files
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["ids.json"]
+
+# pretty URLs for root files
 [[redirects]]
   from = "/privacy"
   to = "/privacy.html"
@@ -13,24 +17,7 @@
   to = "/terms.html"
   status = 200
 
-# Always serve index if path not found (optional, keep if you have SPA)
-# [[redirects]]
-#   from = "/*"
-#   to = "/index.html"
-#   status = 200
-[[redirects]]
-  from = "/verify"
-  to = "/.netlify/functions/verify"
-  status = 200
-  force = true
-[build]
-  publish = "."
-  functions = "netlify/functions"
-
-[functions]
-  node_bundler = "esbuild"
-  included_files = ["ids.json"]
-
+# map short /verify to the function
 [[redirects]]
   from = "/verify"
   to = "/.netlify/functions/verify"
